@@ -40,6 +40,23 @@ def display_message(msg, color):
     mesg = font_style.render(msg, True, color)
     display.blit(mesg, [width / 6, height / 3])
 
+# Main menu function
+def main_menu():
+    menu_active = True
+    while menu_active:
+        display.fill(blue)
+        display_message("Welcome to Snake Game! Press S to Start", white)
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_s:
+                    menu_active = False
+                    game_loop()
+
 # Main game function
 def game_loop():
     game_over = False
@@ -132,5 +149,5 @@ def game_loop():
     pygame.quit()
     quit()
 
-# Run the game
-game_loop()
+# Start the main menu
+main_menu()
