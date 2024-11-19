@@ -17,6 +17,8 @@ black = (0, 0, 0)
 red = (213, 50, 80)
 green = (0, 255, 0)
 blue = (50, 153, 213)
+dark_gray = (50, 50, 50)
+light_green = (144, 238, 144)
 
 # Game variables
 snake_block = 10
@@ -36,16 +38,41 @@ def draw_snake(snake_block, snake_list):
         pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
 
 # Function to display messages on the screen
-def display_message(msg, color):
+def display_message(msg, color, y_offset=0):
     mesg = font_style.render(msg, True, color)
-    display.blit(mesg, [width / 6, height / 3])
+    display.blit(mesg, [width / 6, height / 3 + y_offset])
+
+# Function to draw obstacles
+def draw_obstacles(obstacles):
+    for obs in obstacles:
+        pygame.draw.rect(display, red, obs)
+
+# Maps with adjusted obstacles
+maps = {
+    "blue": {"background": blue, "obstacles": []},  # No obstacles
+    "green": {"background": light_green, "obstacles": [
+        pygame.Rect(100, 100, 400, 10),  # Horizontal bar
+        pygame.Rect(200, 200, 10, 100)   # Vertical bar
+    ]},
+    "dark": {"background": dark_gray, "obstacles": [
+        pygame.Rect(50, 50, 500, 10),    # Top horizontal bar
+        pygame.Rect(50, 340, 500, 10),  # Bottom horizontal bar
+        pygame.Rect(150, 150, 300, 10), # Middle horizontal bar
+        pygame.Rect(300, 150, 10, 100)  # Vertical obstacle in the middle
+    ]}
+}
 
 # Main menu function
 def main_menu():
     menu_active = True
+    selected_map = None
+
     while menu_active:
         display.fill(blue)
-        display_message("Welcome to Snake Game! Press S to Start", white)
+        display_message("Welcome to Snake Game!", white, y_offset=-50)
+        display_message("Press 1 for Blue Map", white, y_offset=0)
+        display_message("Press 2 for Green Map", white, y_offset=50)
+        display_message("Press 3 for Dark Map", white, y_offset=100)
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -53,14 +80,27 @@ def main_menu():
                 pygame.quit()
                 quit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_s:
+                if event.key == pygame.K_1:
+                    selected_map = "blue"
                     menu_active = False
-                    game_loop()
+                elif event.key == pygame.K_2:
+                    selected_map = "green"
+                    menu_active = False
+                elif event.key == pygame.K_3:
+                    selected_map = "dark"
+                    menu_active = False
+
+    game_loop(selected_map)
 
 # Main game function
-def game_loop():
+def game_loop(selected_map):
     game_over = False
     game_close = False
+
+    # Get map details
+    map_details = maps[selected_map]
+    background_color = map_details["background"]
+    obstacles = map_details["obstacles"]
 
     # Starting position of the snake
     x1 = width / 2
@@ -82,7 +122,7 @@ def game_loop():
     while not game_over:
 
         while game_close:
-            display.fill(blue)
+            display.fill(background_color)
             display_message("You Lost! Press Q-Quit or C-Play Again", red)
             display_score(snake_length - 1)
             pygame.display.update()
@@ -93,7 +133,7 @@ def game_loop():
                         game_over = True
                         game_close = False
                     if event.key == pygame.K_c:
-                        game_loop()
+                        game_loop(selected_map)
 
         # Handling keystrokes for movement
         for event in pygame.event.get():
@@ -120,8 +160,11 @@ def game_loop():
         # Updating position
         x1 += x1_change
         y1 += y1_change
-        display.fill(white)
-        pygame.draw.rect(display, green, [foodx, foody, snake_block, snake_block])
+        display.fill(background_color)
+
+        # Draw food and obstacles
+        pygame.draw.rect(display, red, [foodx, foody, snake_block, snake_block])
+        draw_obstacles(obstacles)
 
         # Snake movement
         snake_head = [x1, y1]
@@ -132,6 +175,11 @@ def game_loop():
         # Check for collision with itself
         for x in snake_list[:-1]:
             if x == snake_head:
+                game_close = True
+
+        # Check for collision with obstacles
+        for obs in obstacles:
+            if obs.collidepoint(x1, y1):
                 game_close = True
 
         draw_snake(snake_block, snake_list)
