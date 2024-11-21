@@ -58,7 +58,6 @@ maps = {
         pygame.Rect(50, 50, 500, 10),    # Top horizontal bar
         pygame.Rect(50, 340, 500, 10),  # Bottom horizontal bar
         pygame.Rect(150, 150, 300, 10), # Middle horizontal bar
-        pygame.Rect(300, 150, 10, 100)  # Vertical obstacle in the middle
     ]}
 }
 
