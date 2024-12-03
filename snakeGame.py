@@ -27,6 +27,14 @@ clock = pygame.time.Clock()
 font_style = pygame.font.SysFont(None, 35)
 score_font = pygame.font.SysFont(None, 35)
 
+# Load sounds
+pygame.mixer.init()
+background_music = "background_music.mp3"  # Background music
+food_sound = pygame.mixer.Sound("food.wav")  # SFX for when the snake eats food
+collision_sound = pygame.mixer.Sound("collision.wav")  # SFX for obstacle-snake collision 
+pygame.mixer.music.load(background_music)
+pygame.mixer.music.play(-1)  # Loop the background music
+
 # Function to display the score
 def display_score(score):
     value = score_font.render("Score: " + str(score), True, yellow)
@@ -154,6 +162,7 @@ def game_loop(selected_map):
 
         # Boundaries check
         if x1 >= width or x1 < 0 or y1 >= height or y1 < 0:
+            pygame.mixer.Sound.play(collision_sound)
             game_close = True
 
         # Updating position
@@ -174,11 +183,13 @@ def game_loop(selected_map):
         # Check for collision with itself
         for x in snake_list[:-1]:
             if x == snake_head:
+                pygame.mixer.Sound.play(collision_sound)
                 game_close = True
 
         # Check for collision with obstacles
         for obs in obstacles:
             if obs.collidepoint(x1, y1):
+                pygame.mixer.Sound.play(collision_sound)
                 game_close = True
 
         draw_snake(snake_block, snake_list)
@@ -187,6 +198,7 @@ def game_loop(selected_map):
 
         # Check if snake has eaten the food
         if x1 == foodx and y1 == foody:
+            pygame.mixer.Sound.play(food_sound)
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
             snake_length += 1
