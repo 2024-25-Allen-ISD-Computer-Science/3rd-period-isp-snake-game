@@ -30,9 +30,10 @@ score_font = pygame.font.SysFont(None, 35)
 # Load sounds
 pygame.mixer.init()
 background_music = "background_music.mp3"  # Background music
-food_sound = pygame.mixer.Sound("food.wav")  # SFX for when the snake eats food
-collision_sound = pygame.mixer.Sound("collision.wav")  # SFX for obstacle-snake collision 
+food_sound = pygame.mixer.Sound("food.mp3")  # SFX for when the snake eats food
+collision_sound = pygame.mixer.Sound("collision.mp3")  # SFX for obstacle-snake collision 
 pygame.mixer.music.load(background_music)
+pygame.mixer.music.set_volume(0.5)  # Decrease volume to 50%
 pygame.mixer.music.play(-1)  # Loop the background music
 
 # Function to display the score
