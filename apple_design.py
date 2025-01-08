@@ -1,4 +1,3 @@
-# Create a new figure for the refined apple design
 fig, ax = plt.subplots(figsize=(6, 6))
 
 #Apple design
