@@ -41,6 +41,11 @@ def display_score(score):
     value = score_font.render("Score: " + str(score), True, yellow)
     display.blit(value, [0, 0])
 
+# Function to display high score
+def display_high_score(score):
+    value = score_font.render("High Score: " + str(score), True, yellow)
+    display.blit(value, [width - 200, 0])
+
 # Function to display the snake
 def draw_snake(snake_block, snake_list):
     for x in snake_list:
@@ -75,12 +80,16 @@ def main_menu():
     menu_active = True
     selected_map = None
 
+    # This variable initializes the high score to 0 each time the game starts
+    high_score = 0
+
     while menu_active:
         display.fill(blue)
         display_message("Welcome to Snake Game!", white, y_offset=-50)
         display_message("Press 1 for Blue Map", white, y_offset=0)
         display_message("Press 2 for Green Map", white, y_offset=50)
         display_message("Press 3 for Dark Map", white, y_offset=100)
+        display_high_score(high_score)  
         pygame.display.update()
 
         for event in pygame.event.get():
@@ -98,12 +107,13 @@ def main_menu():
                     selected_map = "dark"
                     menu_active = False
 
-    game_loop(selected_map)
+    game_loop(selected_map, high_score)
 
 # Main game function
-def game_loop(selected_map):
+def game_loop(selected_map, high_score):
     game_over = False
     game_close = False
+    score = 0
 
     # Get map details
     map_details = maps[selected_map]
@@ -133,6 +143,12 @@ def game_loop(selected_map):
             display.fill(background_color)
             display_message("You Lost! Press Q-Quit or C-Play Again", red)
             display_score(snake_length - 1)
+
+            # This if statement updates the high score if the current score is greater
+            if snake_length - 1 > high_score:
+                high_score = snake_length - 1
+
+            display_high_score(high_score)  # This displays the updated high score
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -141,7 +157,7 @@ def game_loop(selected_map):
                         game_over = True
                         game_close = False
                     if event.key == pygame.K_c:
-                        game_loop(selected_map)
+                        game_loop(selected_map, high_score)
 
         # Handling keystrokes for movement
         for event in pygame.event.get():
@@ -172,7 +188,7 @@ def game_loop(selected_map):
         display.fill(background_color)
 
         # Draw food and obstacles
-        pygame.draw.rect(display, red, [foodx, foody, snake_block, snake_block])
+        pygame.draw.rect(display, red, [foodx, foody, snake_block, snake_block])  # Draw the apple (food)
         draw_obstacles(obstacles)
 
         # Snake movement
@@ -195,9 +211,10 @@ def game_loop(selected_map):
 
         draw_snake(snake_block, snake_list)
         display_score(snake_length - 1)
+        display_high_score(high_score)
         pygame.display.update()
 
-        # Check if snake has eaten the food
+        # This checks if snake has eaten the food (apple)
         if x1 == foodx and y1 == foody:
             pygame.mixer.Sound.play(food_sound)
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
