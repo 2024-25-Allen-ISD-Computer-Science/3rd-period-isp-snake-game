@@ -47,11 +47,28 @@ def display_score(score):
 def display_high_score(score):
     value = score_font.render("High Score: " + str(score), True, yellow)
     display.blit(value, [width - 200, 0])
+
+# Function to draw the snake
+def draw_snake(snake_block, snake_list):
+    """Draws the snake with a distinct head and body."""
+    for i, segment in enumerate(snake_list):
+        if i == 0:  # Head
+            pygame.draw.circle(display, dark_green, (segment[0] + snake_block // 2, segment[1] + snake_block // 2), snake_block // 2)
+        else:  # Body
+            pygame.draw.rect(display, forest_green, [segment[0], segment[1], snake_block, snake_block])
+
+# Function to draw the apple
+def draw_apple(x, y):
+    pygame.draw.ellipse(display, (0, 0, 0, 75), [x - 5, y + 10, 20, 5])
+    pygame.draw.circle(display, crimson, (x, y), 10)
+    pygame.draw.ellipse(display, white, [x + 2, y - 4, 4, 2])
+    pygame.draw.polygon(display, forest_green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
+    pygame.draw.rect(display, saddle_brown, [x - 1, y - 12, 2, 5])
     
 # Function to display the snake
-def draw_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
+# def draw_snake(snake_block, snake_list):
+    # for x in snake_list:
+        # pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
         
 # Function to display messages on the screen
 def display_message(msg, color, y_offset=0):
