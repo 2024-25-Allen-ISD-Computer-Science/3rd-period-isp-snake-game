@@ -80,7 +80,20 @@ def display_message(msg, color, y_offset=0):
 # Function to draw obstacles
 def draw_obstacles(obstacles):
     for obs in obstacles:
-        pygame.draw.rect(display, red, obs)
+        brick_color = (139, 69, 19)
+        mortar_color = (211, 211, 211)
+        brick_width = 20
+        brick_height = 10
+        pygame.draw.rect(display, mortar_color, obs)
+        rows = obs.height // brick_height
+        cols = obs.width // brick_width
+        for row in range(rows):
+            for col in range(cols):
+                x = obs.left + col * brick_width
+                y = obs.top + row + brick_height
+                offset = (row % 2) * (brick_width // 2)
+                if x + offset + brick_width <= obs.right:
+                    pygame.draw.rect(display, brick_color, x + offset, y, brick_width - 2, brick_height - 2)
 
 # Function to normalize velocity for constant speed
 def normalize_velocity(velocity, speed):
