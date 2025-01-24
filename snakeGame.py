@@ -236,10 +236,10 @@ def game_loop(selected_map, high_score):
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
 
-        --------------
+        
         # Draw food
         # pygame.draw.rect(display, white, [foodx, foody, snake_block, snake_block])
-        ---------------
+      
         
         # Snake movement
         snake_head = [x1, y1]
