@@ -38,49 +38,46 @@ pygame.mixer.music.load(background_music)
 pygame.mixer.music.set_volume(0.5)  # Decrease volume to 50%
 pygame.mixer.music.play(-1)  # Loop the background music
 
-# Function to display the score
+# Volume settings
+master_volume = 0.5
+music_volume = 0.5
+sfx_volume = 0.5
+
 def display_score(score):
     value = score_font.render("Score: " + str(score), True, yellow)
     display.blit(value, [0, 0])
-    
-# Function to display high score
+
 def display_high_score(score):
     value = score_font.render("High Score: " + str(score), True, yellow)
     display.blit(value, [width - 200, 0])
-    
-# Function to display the snake
+
 def draw_snake(snake_block, snake_list):
     for x in snake_list:
         pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
-        
-# Function to display messages on the screen
+
 def display_message(msg, color, y_offset=0):
     mesg = font_style.render(msg, True, color)
     display.blit(mesg, [width / 6, height / 3 + y_offset])
 
-# Function to draw obstacles
 def draw_obstacles(obstacles):
     for obs in obstacles:
         pygame.draw.rect(display, red, obs)
 
-# Function to normalize velocity for constant speed
 def normalize_velocity(velocity, speed):
     magnitude = math.sqrt(velocity[0]**2 + velocity[1]**2)
     return [speed * velocity[0] / magnitude, speed * velocity[1] / magnitude]
 
-# Function to update obstacle positions
 def move_obstacles(obstacles, velocities):
     for i, obs in enumerate(obstacles):
         obs.x += velocities[i][0]  # Update x position
         obs.y += velocities[i][1]  # Update y position
-        
+
         # Reverse direction if hitting boundaries
         if obs.left <= 0 or obs.right >= width:
             velocities[i][0] = -velocities[i][0]
         if obs.top <= 0 or obs.bottom >= height:
             velocities[i][1] = -velocities[i][1]
 
-# Maps with adjusted obstacles
 maps = {
     "blue": {"background": blue, "obstacles": []},  # No obstacles
     "green": {"background": light_green, "obstacles": [
@@ -94,11 +91,53 @@ maps = {
     ]}
 }
 
-# Main menu function
+def draw_slider(label, x, y, value):
+    pygame.draw.rect(display, white, [x, y, 200, 10])
+    pygame.draw.rect(display, green, [x, y, int(value * 200), 10])
+    text = font_style.render(label, True, white)
+    display.blit(text, (x, y - 30))
+
+def options_menu():
+    global master_volume, music_volume, sfx_volume
+
+    options_active = True
+    while options_active:
+        display.fill(blue)
+        draw_slider("Master Volume", 200, 100, master_volume)
+        draw_slider("Music Volume", 200, 150, music_volume)
+        draw_slider("SFX Volume", 200, 200, sfx_volume)
+
+        instructions = font_style.render("Press ESC to return to the main menu", True, yellow)
+        display.blit(instructions, (50, 300))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    options_active = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if 200 <= mouse_x <= 400:
+                    if 100 <= mouse_y <= 110:
+                        master_volume = (mouse_x - 200) / 200
+                        pygame.mixer.music.set_volume(master_volume * music_volume)
+                        food_sound.set_volume(master_volume * sfx_volume)
+                        collision_sound.set_volume(master_volume * sfx_volume)
+                    elif 150 <= mouse_y <= 160:
+                        music_volume = (mouse_x - 200) / 200
+                        pygame.mixer.music.set_volume(master_volume * music_volume)
+                    elif 200 <= mouse_y <= 210:
+                        sfx_volume = (mouse_x - 200) / 200
+                        food_sound.set_volume(master_volume * sfx_volume)
+                        collision_sound.set_volume(master_volume * sfx_volume)
+
 def main_menu():
     menu_active = True
     selected_map = None
-    # This variable initializes the high score to 0 each time the game starts
     high_score = 0
     while menu_active:
         display.fill(blue)
@@ -106,7 +145,8 @@ def main_menu():
         display_message("Press 1 for Blue Map", white, y_offset=0)
         display_message("Press 2 for Green Map", white, y_offset=50)
         display_message("Press 3 for Dark Map", white, y_offset=100)
-        display_high_score(high_score)  
+        display_message("Press O for Options", white, y_offset=150)
+        display_high_score(high_score)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -122,39 +162,33 @@ def main_menu():
                 elif event.key == pygame.K_3:
                     selected_map = "dark"
                     menu_active = False
+                elif event.key == pygame.K_o:
+                    options_menu()
     game_loop(selected_map, high_score)
 
-# Main game function
 def game_loop(selected_map, high_score):
     game_over = False
     game_close = False
     score = 0
-    
-    # Get map details
+
     map_details = maps[selected_map]
     background_color = map_details["background"]
     obstacles = map_details["obstacles"]
-    
-    # Add velocities for moving obstacles
+
     velocities = [normalize_velocity([random.choice([-1, 1]), random.choice([-1, 1])], obstacle_speed) for _ in obstacles]
-    
-    # Starting position of the snake
+
     x1 = width / 2
     y1 = height / 2
-    
-    # Movement coordinates
+
     x1_change = 0
     y1_change = 0
-    
-    # Snake attributes
+
     snake_list = []
     snake_length = 1
-    
-    # Food coordinates
+
     foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
-    
-    # Main game loop
+
     while not game_over:
         while game_close:
             display.fill(background_color)
@@ -171,8 +205,7 @@ def game_loop(selected_map, high_score):
                         game_close = False
                     if event.key == pygame.K_c:
                         game_loop(selected_map, high_score)
-        
-        # Handling keystrokes for movement
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -189,37 +222,30 @@ def game_loop(selected_map, high_score):
                 elif event.key == pygame.K_DOWN:
                     y1_change = snake_block
                     x1_change = 0
-        
-        # Boundaries check
+
         if x1 >= width or x1 < 0 or y1 >= height or y1 < 0:
             pygame.mixer.Sound.play(collision_sound)
             game_close = True
-        
-        # Updating position
+
         x1 += x1_change
         y1 += y1_change
         display.fill(background_color)
-        
-        # Move and draw obstacles
+
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
-        
-        # Draw food
+
         pygame.draw.rect(display, white, [foodx, foody, snake_block, snake_block])
-        
-        # Snake movement
+
         snake_head = [x1, y1]
         snake_list.append(snake_head)
         if len(snake_list) > snake_length:
             del snake_list[0]
-        
-        # Check for collision with itself
+
         for x in snake_list[:-1]:
             if x == snake_head:
                 pygame.mixer.Sound.play(collision_sound)
                 game_close = True
-        
-        # Check for collision with obstacles
+
         for obs in obstacles:
             if obs.collidepoint(x1, y1):
                 pygame.mixer.Sound.play(collision_sound)
@@ -228,8 +254,7 @@ def game_loop(selected_map, high_score):
         display_score(snake_length - 1)
         display_high_score(high_score)
         pygame.display.update()
-        
-        # Check if snake has eaten the food
+
         if x1 == foodx and y1 == foody:
             pygame.mixer.Sound.play(food_sound)
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
@@ -239,5 +264,4 @@ def game_loop(selected_map, high_score):
     pygame.quit()
     quit()
 
-# Start the main menu
 main_menu()
