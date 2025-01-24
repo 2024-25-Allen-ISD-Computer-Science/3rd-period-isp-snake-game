@@ -65,12 +65,12 @@ def draw_food(x, y):
     pygame.draw.polygon(display, forest_green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
     pygame.draw.rect(display, saddle_brown, [x - 1, y - 12, 2, 5])
 
-----------------------
+
 # Function to display the snake
 # def draw_snake(snake_block, snake_list):
     # for x in snake_list:
         # pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
------------------------
+
         
 # Function to display messages on the screen
 def display_message(msg, color, y_offset=0):
