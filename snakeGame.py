@@ -20,6 +20,9 @@ green = (0, 255, 0)
 blue = (50, 153, 213)
 dark_gray = (50, 50, 50)
 light_green = (144, 238, 144)
+forest_green = (34, 139, 34)
+crimson = (220, 20, 60)
+saddle_brown = (139, 69, 19)
 
 # Game variables
 snake_block = 10
@@ -55,13 +58,33 @@ def draw_snake(snake_block, snake_list):
     for x in snake_list:
         pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
 
+def draw_food(x, y):
+    pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
+    pygame.draw.circle(display, red, (x, y), 10)
+    pygame.draw.ellipse(display, white, [x + 2, y - 4, 4, 2])
+    pygame.draw.polygon(display, green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
+    pygame.draw.rect(display, black, [x - 1, y - 12, 2, 5])
+
 def display_message(msg, color, y_offset=0):
     mesg = font_style.render(msg, True, color)
     display.blit(mesg, [width / 6, height / 3 + y_offset])
 
 def draw_obstacles(obstacles):
     for obs in obstacles:
-        pygame.draw.rect(display, red, obs)
+        brick_color = (139, 69, 19)
+        mortar_color = (211, 211, 211)
+        brick_width = 20
+        brick_height = 10
+        pygame.draw.rect(display, mortar_color, obs)
+        rows = obs.height // brick_height
+        cols = obs.width // brick_width
+        for row in range(rows):
+            for col in range(cols):
+                x = obs.left + col * brick_width
+                y = obs.top + row + brick_height
+                offset = (row % 2) * (brick_width // 2)
+                if x + offset + brick_width <= obs.right:
+                    pygame.draw.rect(display, brick_color, pygame.Rect(x + offset, y, brick_width - 2, brick_height - 2))
 
 def normalize_velocity(velocity, speed):
     magnitude = math.sqrt(velocity[0]**2 + velocity[1]**2)
