@@ -55,11 +55,8 @@ def display_high_score(score):
     display.blit(value, [width - 200, 0])
 
 def draw_snake(snake_block, snake_list):
-    for i, segment in enumerate(snake_list):
-        if i == 0:  # Head
-            pygame.draw.circle(display, green, (segment[0] + snake_block // 2, segment[1] + snake_block // 2), snake_block // 2)
-        else:  # Body
-            pygame.draw.rect(display, green, [segment[0], segment[1], snake_block, snake_block])
+    for x in snake_list:
+        pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
 
 def draw_food(x, y):
     pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
@@ -192,7 +189,34 @@ def main_menu():
                     options_menu()
     game_loop(selected_map, high_score)
 
+# Power-up variables
+power_up_active = False
+power_up_timer = 0
+power_up_rect = None
+power_up_creation_time = 0  # Timestamp when the power-up is created
+
+# Function to draw the power-up
+def draw_power_up(power_up_rect):
+    pygame.draw.rect(display, yellow, power_up_rect)
+
+# Function to generate a random power-up
+def generate_power_up():
+    if random.random() < 1/3:  # 1/3 chance of power-up generation
+        power_up_x = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
+        power_up_y = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
+        return pygame.Rect(power_up_x, power_up_y, snake_block * 4, snake_block * 4)
+    return None
+
+# Function to draw the snake with ghostly effect when power-up is active
+def draw_ghostly_snake(snake_block, snake_list):
+    for x in snake_list:
+        if power_up_active:  # If power-up is active, make snake look ghostly
+            pygame.draw.rect(display, (255, 255, 255, 100), [x[0], x[1], snake_block, snake_block])  # White with transparency
+        else:
+            pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
+
 def game_loop(selected_map, high_score):
+    global power_up_active, power_up_timer, power_up_rect, power_up_creation_time
     game_over = False
     game_close = False
     score = 0
@@ -225,7 +249,10 @@ def game_loop(selected_map, high_score):
             display_high_score(high_score)
             pygame.display.update()
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         game_over = True
                         game_close = False
@@ -260,7 +287,12 @@ def game_loop(selected_map, high_score):
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
 
+        # Draw food
         pygame.draw.rect(display, white, [foodx, foody, snake_block, snake_block])
+
+        # Draw the power-up if it exists
+        if power_up_rect:
+            draw_power_up(power_up_rect)
 
         snake_head = [x1, y1]
         snake_list.append(snake_head)
@@ -274,19 +306,44 @@ def game_loop(selected_map, high_score):
 
         for obs in obstacles:
             if obs.collidepoint(x1, y1):
-                pygame.mixer.Sound.play(collision_sound)
-                game_close = True
-        draw_snake(snake_block, snake_list)
+                if not power_up_active:  # Only collide with obstacles if power-up is not active
+                    pygame.mixer.Sound.play(collision_sound)
+                    game_close = True
+
+        # Draw the snake with the ghostly effect when power-up is active
+        draw_ghostly_snake(snake_block, snake_list)
         display_score(snake_length - 1)
         display_high_score(high_score)
         pygame.display.update()
 
+        # Check for collision with food
         if x1 == foodx and y1 == foody:
             pygame.mixer.Sound.play(food_sound)
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
             snake_length += 1
+
+            # Generate power-up on food consumption
+            power_up_rect = generate_power_up()
+            if power_up_rect:  # If power-up generated, store its creation time
+                power_up_creation_time = time.time()
+
+        # If the player has collected a power-up
+        if power_up_rect and pygame.Rect(x1, y1, snake_block, snake_block).colliderect(power_up_rect):
+            power_up_active = True
+            power_up_timer = time.time()  # Start the power-up timer
+            power_up_rect = None  # Remove the power-up after collection
+
+        # If the power-up timer expires, deactivate the power-up
+        if power_up_active and time.time() - power_up_timer > 5:  # Power-up lasts for 5 seconds
+            power_up_active = False
+
+        # If the power-up has not been collected and 5 seconds have passed, remove it
+        if power_up_rect and time.time() - power_up_creation_time > 5:
+            power_up_rect = None  # Remove the power-up if not collected
+
         clock.tick(snake_speed)
+
     pygame.quit()
     quit()
 
