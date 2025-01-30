@@ -69,9 +69,9 @@ def draw_food(x, y):
     pygame.draw.polygon(display, green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
     pygame.draw.rect(display, black, [x - 1, y - 12, 2, 5])
 
-def display_message(msg, color, y_offset=0):
+def display_message(msg, color, y_offset=0, x_offset=width/6):
     mesg = font_style.render(msg, True, color)
-    display.blit(mesg, [width / 6, height / 3 + y_offset])
+    display.blit(mesg, [x_offset, height / 3 + y_offset])
 
 def draw_obstacles(obstacles):
     for obs in obstacles:
@@ -161,7 +161,27 @@ def options_menu():
                         sfx_volume = (mouse_x - 200) / 200
                         food_sound.set_volume(master_volume * sfx_volume)
                         collision_sound.set_volume(master_volume * sfx_volume)
+# Function to show "How to Play" instructions
+def how_to_play_screen():
+    display.fill(blue)
+    display_message("How to Play", white, y_offset=-75, x_offset = 225)
+    display_message("Use WASD or Arrow Keys to move the snake.", white, y_offset=0, x_offset=25)
+    display_message("Touch the big yellow object to turn into a ghost!", white, y_offset=50,x_offset=25)
+    display_message("While a ghost, you can pass through obstacles.", white, y_offset=100,x_offset=25)
+    display_message("Press ESC to return to the main menu.", white, y_offset=200,x_offset=25) 
+    pygame.display.update()
 
+    # Wait for the player to press ESC to return to the main menu
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu()
+                    waiting = False
 def main_menu():
     menu_active = True
     selected_map = None
@@ -173,6 +193,7 @@ def main_menu():
         display_message("Press 2 for Green Map", white, y_offset=50)
         display_message("Press 3 for Dark Map", white, y_offset=100)
         display_message("Press O for Options", white, y_offset=150)
+        display_message("Press H for How to Play", white, y_offset = 200)
         display_high_score(high_score)
         pygame.display.update()
         for event in pygame.event.get():
@@ -191,6 +212,8 @@ def main_menu():
                     menu_active = False
                 elif event.key == pygame.K_o:
                     options_menu()
+                elif event.key == pygame.K_h:  
+                    how_to_play_screen()
     game_loop(selected_map, high_score)
 
 # Power-up variables
