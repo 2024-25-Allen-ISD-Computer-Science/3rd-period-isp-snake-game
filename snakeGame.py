@@ -55,8 +55,12 @@ def display_high_score(score):
     display.blit(value, [width - 200, 0])
 
 def draw_snake(snake_block, snake_list):
-    for x in snake_list:
-        pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
+    for i, segment in enumerate(snake_list):
+        if i == 0:  # Head
+            pygame.draw.circle(display, green, (segment[0] + snake_block // 2, segment[1] + snake_block // 2), snake_block // 2)
+        else:  # Body
+            pygame.draw.rect(display, green, [segment[0], segment[1], snake_block, snake_block])
+    
 
 def draw_food(x, y):
     pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
