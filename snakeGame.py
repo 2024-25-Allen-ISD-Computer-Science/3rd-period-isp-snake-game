@@ -55,12 +55,21 @@ def display_high_score(score):
     display.blit(value, [width - 200, 0])
 
 def draw_snake(snake_block, snake_list):
-    for i, segment in enumerate(snake_list):
+    for i, segment in enumerate(reversed(snake_list)):
+        x, y = segment
+        center_x, center_y = x + snake_block // 2, y + snake_block // 2
         if i == 0:  # Head
-            pygame.draw.circle(display, green, (segment[0] + snake_block // 2, segment[1] + snake_block // 2), snake_block // 2)
+            # Draw head with eyes
+            pygame.draw.ellipse(display, forest_green, [x, y, snake_block + 2, snake_block])
+            eye_radius = snake_block // 5
+            # Left Eye
+            pygame.draw.circle(display, black, (center_x - 3, center_y - 3), eye_radius)
+            # Right Eye
+            pygame.draw.circle(display, black, (center_x + 3, center_y - 3), eye_radius)
         else:  # Body
-            pygame.draw.rect(display, green, [segment[0], segment[1], snake_block, snake_block])
-    
+            pygame.draw.ellipse(display, forest_green, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+        if i == len(snake_list) - 1:  # Tail Tapering
+            pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 def draw_food(x, y):
     pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
@@ -238,9 +247,23 @@ def generate_power_up():
 def draw_ghostly_snake(snake_block, snake_list):
     for x in snake_list:
         if power_up_active:  # If power-up is active, make snake look ghostly
-            pygame.draw.rect(display, (255, 255, 255, 100), [x[0], x[1], snake_block, snake_block])  # White with transparency
+            for i, segment in enumerate(reversed(snake_list)):
+                x, y = segment
+                center_x, center_y = x + snake_block // 2, y + snake_block // 2
+                if i == 0:  # Head
+                    # Draw head with eyes
+                    pygame.draw.ellipse(display, white, [x, y, snake_block + 2, snake_block])
+                    eye_radius = snake_block // 5
+                    # Left Eye
+                    pygame.draw.circle(display, blue, (center_x - 3, center_y - 3), eye_radius)
+                    # Right Eye
+                    pygame.draw.circle(display, blue, (center_x + 3, center_y - 3), eye_radius)
+                else:  # Body
+                    pygame.draw.ellipse(display, white, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+                if i == len(snake_list) - 1:  # Tail Tapering
+                    pygame.draw.ellipse(display, white, [x + 3, y + 3, snake_block - 4, snake_block - 4])
         else:
-            pygame.draw.rect(display, black, [x[0], x[1], snake_block, snake_block])
+            draw_snake(snake_block, snake_list)
 
 def game_loop(selected_map, high_score):
     global power_up_active, power_up_timer, power_up_rect, power_up_creation_time
@@ -314,8 +337,7 @@ def game_loop(selected_map, high_score):
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
 
-        # Draw food
-        pygame.draw.rect(display, white, [foodx, foody, snake_block, snake_block])
+        draw_food(foodx, foody)
 
         # Draw the power-up if it exists
         if power_up_rect:
