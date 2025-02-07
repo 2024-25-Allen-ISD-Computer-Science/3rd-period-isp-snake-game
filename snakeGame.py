@@ -78,9 +78,16 @@ def draw_food(x, y):
     pygame.draw.polygon(display, green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
     pygame.draw.rect(display, black, [x - 1, y - 12, 2, 5])
 
-def display_message(msg, color, y_offset=0, x_offset=width/6):
+def display_message(msg, color, y_offset=0, x_offset=width/6, underline=False):
     mesg = font_style.render(msg, True, color)
     display.blit(mesg, [x_offset, height / 3 + y_offset])
+
+    if underline:
+        underline_width = mesg.get_width()
+        underline_height = 2  # Thickness of the underline
+        underline_x = x_offset
+        underline_y = height / 3 + y_offset + mesg.get_height()
+        pygame.draw.line(display, color, (underline_x, underline_y), (underline_x + underline_width, underline_y), underline_height)
 
 def draw_obstacles(obstacles):
     for obs in obstacles:
@@ -197,12 +204,12 @@ def main_menu():
     high_score = 0
     while menu_active:
         display.fill(blue)
-        display_message("Welcome to Snake Game!", white, y_offset=-50)
-        display_message("Press 1 for Blue Map", white, y_offset=0)
-        display_message("Press 2 for Green Map", white, y_offset=50)
-        display_message("Press 3 for Dark Map", white, y_offset=100)
-        display_message("Press O for Options", white, y_offset=150)
-        display_message("Press H for How to Play", white, y_offset = 200)
+        display_message("Welcome to Snake Game!", white, y_offset=-90, x_offset=150, underline=True)
+        display_message("Press 1 for Blue Map", white, y_offset=-40, x_offset = 150)
+        display_message("Press 2 for Green Map", white, y_offset=10, x_offset = 150)
+        display_message("Press 3 for Dark Map", white, y_offset=60, x_offset = 150)
+        display_message("Press O for Options", white, y_offset=110, x_offset = 150)
+        display_message("Press H for How to Play", white, y_offset = 160, x_offset = 150)
         display_high_score(high_score)
         pygame.display.update()
         for event in pygame.event.get():
