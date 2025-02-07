@@ -272,7 +272,53 @@ def draw_ghostly_snake(snake_block, snake_list):
         else:
             draw_snake(snake_block, snake_list)
 
+# Achievement System
+class AchievementSystem:
+    def __init__(self):
+        self.achievements = {
+            "map_3_flawless": {"earned": False, "message": "Flawless on Map 3! +20 Shop Points", "points": 20},
+            "score_100_total": {"earned": False, "message": "100 Total Score! +30 Shop Points", "points": 30}
+        }
+        self.total_score = 0
+        self.achievement_display_time = 3  # Duration to display the achievement banner
+        self.achievement_queue = []  # Queue for earned achievements
+        self.current_achievement = None
+        self.achievement_start_time = None
+
+    def check_achievements(self, score, selected_map, alive):
+        # Check "Flawless on Map 3" achievement
+        if not self.achievements["map_3_flawless"]["earned"] and selected_map == "dark" and score >= 25 and alive:
+            self.earn_achievement("map_3_flawless")
+
+        # Track total score for "100 Total Score" achievement
+        self.total_score += score
+        if not self.achievements["score_100_total"]["earned"] and self.total_score >= 100:
+            self.earn_achievement("score_100_total")
+
+    def earn_achievement(self, achievement_key):
+        if achievement_key in self.achievements:
+            self.achievements[achievement_key]["earned"] = True
+            self.achievement_queue.append(self.achievements[achievement_key]["message"])
+            print(f"Achievement Unlocked: {self.achievements[achievement_key]['message']}")  # Debug message
+
+    def update_achievement_display(self):
+        if not self.current_achievement and self.achievement_queue:
+            self.current_achievement = self.achievement_queue.pop(0)
+            self.achievement_start_time = time.time()
+
+        if self.current_achievement and time.time() - self.achievement_start_time > self.achievement_display_time:
+            self.current_achievement = None  # Remove achievement after display duration
+
+    def draw_achievement_banner(self, display):
+        if self.current_achievement:
+            banner_rect = pygame.Rect(50, 50, 500, 50)
+            pygame.draw.rect(display, black, banner_rect)
+            pygame.draw.rect(display, yellow, banner_rect, 3)
+            text = font_style.render(self.current_achievement, True, white)
+            display.blit(text, (banner_rect.x + 10, banner_rect.y + 10))
+
 def game_loop(selected_map, high_score):
+    achievement_system = AchievementSystem()
     global power_up_active, power_up_timer, power_up_rect, power_up_creation_time
     game_over = False
     game_close = False
@@ -370,10 +416,13 @@ def game_loop(selected_map, high_score):
         draw_ghostly_snake(snake_block, snake_list)
         display_score(snake_length - 1)
         display_high_score(high_score)
+        achievement_system.update_achievement_display()
+        achievement_system.draw_achievement_banner(display)
         pygame.display.update()
 
         # Check for collision with food
         if x1 == foodx and y1 == foody:
+            achievement_system.check_achievements(snake_length - 1, selected_map, not game_close)
             pygame.mixer.Sound.play(food_sound)
             foodx = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
