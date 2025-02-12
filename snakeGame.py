@@ -240,7 +240,25 @@ power_up_creation_time = 0  # Timestamp when the power-up is created
 
 # Function to draw the power-up
 def draw_power_up(power_up_rect):
-    pygame.draw.rect(display, yellow, power_up_rect)
+    points = [
+        (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y),  # Top
+        (power_up_rect.x + power_up_rect.width * 0.75, power_up_rect.y + power_up_rect.height // 3),
+        (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height // 3),
+        (power_up_rect.x + power_up_rect.width * 0.85, power_up_rect.y + power_up_rect.height),
+        (power_up_rect.x + power_up_rect.width // 2.5, power_up_rect.y + power_up_rect.height * 0.7),
+        (power_up_rect.x + power_up_rect.width * 0.6, power_up_rect.y + power_up_rect.height * 0.7),
+    ]
+
+    # Draw the lightning bolt in yellow
+    pygame.draw.polygon(display, yellow, points)
+
+    # Add white highlights for a glowing effect
+    highlight_points = [
+        (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y + 5),
+        (power_up_rect.x + power_up_rect.width * 0.7, power_up_rect.y + power_up_rect.height // 3 + 5),
+        (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height * 0.75 - 5),
+    ]
+    pygame.draw.polygon(display, white, highlight_points)
 
 # Function to generate a random power-up
 def generate_power_up():
