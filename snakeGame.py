@@ -177,6 +177,24 @@ def options_menu():
                         sfx_volume = (mouse_x - 200) / 200
                         food_sound.set_volume(master_volume * sfx_volume)
                         collision_sound.set_volume(master_volume * sfx_volume)
+def upcoming_updates_screen():
+    display.fill(blue)
+    display_message("Upcoming Updates", white, y_offset = -90, x_offset = 185, underline = True)
+    display_message("- New maps coming soon!", white, y_offset = -40, x_offset = 25)
+    display_message("- New power ups coming soon!", white, y_offset = 0, x_offset = 25)
+    display_message("- New game modes coming soon!", white, y_offset = 40, x_offset = 25)
+    display_message("Press ESC to return to the main menu.", white, y_offset=200,x_offset=25) 
+    pygame.display.update()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu()
+                    waiting = False
 # Function to show "How to Play" instructions
 def how_to_play_screen():
     display.fill(blue)
@@ -210,6 +228,7 @@ def main_menu():
         display_message("Press 3 for Dark Map", white, y_offset=60, x_offset = 150)
         display_message("Press O for Options", white, y_offset=110, x_offset = 150)
         display_message("Press H for How to Play", white, y_offset = 160, x_offset = 150)
+        display_message("Press U for Upcoming Updates", white, y_offset = 210, x_offset = 150)
         display_high_score(high_score)
         pygame.display.update()
         for event in pygame.event.get():
@@ -230,6 +249,9 @@ def main_menu():
                     options_menu()
                 elif event.key == pygame.K_h:  
                     how_to_play_screen()
+                elif event.key == pygame.K_u:
+                    upcoming_updates_screen()
+
     game_loop(selected_map, high_score)
 
 # Power-up variables
