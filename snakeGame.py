@@ -216,6 +216,40 @@ def how_to_play_screen():
                 if event.key == pygame.K_ESCAPE:
                     main_menu()
                     waiting = False
+
+def cosmetic_shop_screen():
+    shop_active = True
+    selected_skin = None
+    skins = ["Classic", "Neon", "Retro", "Ghost"]  # List of available skins
+    skin_prices = {
+        "Classic": 20,  # Price for Classic skin
+        "Neon": 50,     # Price for Neon skin
+        "Retro": 100,   # Price for Retro skin
+        "Ghost": 200    # Price for Ghost skin
+    }
+    
+    while shop_active:
+        display.fill(blue)
+        display_message("Cosmetic Shop", white, y_offset=-90, x_offset=200, underline=True)
+        
+        for index, skin in enumerate(skins):
+            price = skin_prices[skin]  # Get the price of the skin
+            display_message(f"{index + 1}. {skin} Skin - {price} Shop Points", white, y_offset=-40 + (index * 50), x_offset=200)
+        
+        display_message("Press ESC to return to the main menu", white, y_offset=200, x_offset=100)
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    shop_active = False
+                elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4]:
+                    selected_skin = skins[event.key - pygame.K_1]
+                    print(f"Selected Skin: {selected_skin} - Price: {skin_prices[selected_skin]} Shop Points")  # Debugging output
+                
 def main_menu():
     menu_active = True
     selected_map = None
@@ -229,6 +263,7 @@ def main_menu():
         display_message("Press O for Options", white, y_offset=110, x_offset = 150)
         display_message("Press H for How to Play", white, y_offset = 160, x_offset = 150)
         display_message("Press U for Upcoming Updates", white, y_offset = 210, x_offset = 150)
+        display_message("Press S for Cosmetic Shop", white, y_offset=260, x_offset=150)
         display_high_score(high_score)
         pygame.display.update()
         for event in pygame.event.get():
@@ -251,6 +286,8 @@ def main_menu():
                     how_to_play_screen()
                 elif event.key == pygame.K_u:
                     upcoming_updates_screen()
+                elif event.key == pygame.K_s:
+                    cosmetic_shop_screen()
 
     game_loop(selected_map, high_score)
 
