@@ -254,40 +254,69 @@ def main_menu():
     menu_active = True
     selected_map = None
     high_score = 0
+    button_color = (50, 150, 255)
+    button_hover_color = (30, 100, 200)
+    text_color = white
+    button_width = 250
+    button_height = 50
+    button_x = (width - button_width) // 2 
+    button_y_start = 120  
+    button_spacing = 60 
+
+    menu_options = [
+        ("Blue Map", "blue"),
+        ("Green Map", "green"),
+        ("Dark Map", "dark"),
+        ("Options", "options"),
+        ("How to Play", "how_to_play"),
+        ("Upcoming Updates", "updates"),
+        ("Cosmetic Shop", "shop"),
+        ("Exit", "exit")
+    ]
+
     while menu_active:
-        display.fill(blue)
-        display_message("Welcome to Snake Game!", white, y_offset=-90, x_offset=150, underline=True)
-        display_message("Press 1 for Blue Map", white, y_offset=-40, x_offset = 150)
-        display_message("Press 2 for Green Map", white, y_offset=10, x_offset = 150)
-        display_message("Press 3 for Dark Map", white, y_offset=60, x_offset = 150)
-        display_message("Press O for Options", white, y_offset=110, x_offset = 150)
-        display_message("Press H for How to Play", white, y_offset = 160, x_offset = 150)
-        display_message("Press U for Upcoming Updates", white, y_offset = 210, x_offset = 150)
-        display_message("Press S for Cosmetic Shop", white, y_offset=260, x_offset=150)
-        display_high_score(high_score)
+        display.fill(black)  
+        display_message("Welcome to Snake Game!", yellow, y_offset=-120, x_offset=width // 6, underline=True)
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        buttons = []
+
+        for i, (label, action) in enumerate(menu_options):
+            btn_rect = pygame.Rect(button_x, button_y_start + i * button_spacing, button_width, button_height)
+            buttons.append((btn_rect, action))
+
+            color = button_hover_color if btn_rect.collidepoint(mouse_x, mouse_y) else button_color
+            pygame.draw.rect(display, color, btn_rect, border_radius=10)
+            pygame.draw.rect(display, white, btn_rect, 2, border_radius=10) 
+
+            text_surface = font_style.render(label, True, text_color)
+            text_x = btn_rect.centerx - text_surface.get_width() // 2
+            text_y = btn_rect.centery - text_surface.get_height() // 2
+            display.blit(text_surface, (text_x, text_y))
+
         pygame.display.update()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    selected_map = "blue"
-                    menu_active = False
-                elif event.key == pygame.K_2:
-                    selected_map = "green"
-                    menu_active = False
-                elif event.key == pygame.K_3:
-                    selected_map = "dark"
-                    menu_active = False
-                elif event.key == pygame.K_o:
-                    options_menu()
-                elif event.key == pygame.K_h:  
-                    how_to_play_screen()
-                elif event.key == pygame.K_u:
-                    upcoming_updates_screen()
-                elif event.key == pygame.K_s:
-                    cosmetic_shop_screen()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left click
+                for btn_rect, action in buttons:
+                    if btn_rect.collidepoint(mouse_x, mouse_y):
+                        if action == "exit":
+                            pygame.quit()
+                            quit()
+                        elif action == "options":
+                            options_menu()
+                        elif action == "how_to_play":
+                            how_to_play_screen()
+                        elif action == "updates":
+                            upcoming_updates_screen()
+                        elif action == "shop":
+                            cosmetic_shop_screen()
+                        else:
+                            selected_map = action
+                            menu_active = False
 
     game_loop(selected_map, high_score)
 
