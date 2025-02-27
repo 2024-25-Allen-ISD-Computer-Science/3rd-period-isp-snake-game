@@ -46,6 +46,13 @@ master_volume = 0.5
 music_volume = 0.5
 sfx_volume = 0.5
 
+# Power-up variables
+power_up_active = False  # Tracks if any power-up is active
+power_up_type = None  # Tracks the type of power-up (None, "invincibility", or "speed_boost")
+power_up_timer = 0  # Timer for the active power-up
+power_up_rect = None  # Rectangle for the power-up on the screen
+power_up_creation_time = 0  # Timestamp when the power-up is created
+
 def display_score(score):
     value = score_font.render("Score: " + str(score), True, yellow)
     display.blit(value, [0, 0])
@@ -67,9 +74,19 @@ def draw_snake(snake_block, snake_list):
             # Right Eye
             pygame.draw.circle(display, black, (center_x + 3, center_y - 3), eye_radius)
         else:  # Body
-            pygame.draw.ellipse(display, forest_green, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+            if power_up_active and power_up_type == "speed_boost":
+                # Flash effect for speed boost
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))  # Random bright color
+                pygame.draw.ellipse(display, flash_color, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+            else:
+                pygame.draw.ellipse(display, forest_green, [x + 1, y + 1, snake_block - 2, snake_block - 2])
         if i == len(snake_list) - 1:  # Tail Tapering
-            pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
+            if power_up_active and power_up_type == "speed_boost":
+                # Flash effect for speed boost
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))  # Random bright color
+                pygame.draw.ellipse(display, flash_color, [x + 3, y + 3, snake_block - 4, snake_block - 4])
+            else:
+                pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 def draw_food(x, y):
     pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
@@ -320,63 +337,58 @@ def main_menu():
 
     game_loop(selected_map, high_score)
 
-# Power-up variables
-power_up_active = False
-power_up_timer = 0
-power_up_rect = None
-power_up_creation_time = 0  # Timestamp when the power-up is created
-
 # Function to draw the power-up
-def draw_power_up(power_up_rect):
-    points = [
-        (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y),  # Top
-        (power_up_rect.x + power_up_rect.width * 0.75, power_up_rect.y + power_up_rect.height // 3),
-        (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height // 3),
-        (power_up_rect.x + power_up_rect.width * 0.85, power_up_rect.y + power_up_rect.height),
-        (power_up_rect.x + power_up_rect.width // 2.5, power_up_rect.y + power_up_rect.height * 0.7),
-        (power_up_rect.x + power_up_rect.width * 0.6, power_up_rect.y + power_up_rect.height * 0.7),
-    ]
-
-    # Draw the lightning bolt in yellow
-    pygame.draw.polygon(display, yellow, points)
-
-    # Add white highlights for a glowing effect
-    highlight_points = [
-        (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y + 5),
-        (power_up_rect.x + power_up_rect.width * 0.7, power_up_rect.y + power_up_rect.height // 3 + 5),
-        (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height * 0.75 - 5),
-    ]
-    pygame.draw.polygon(display, white, highlight_points)
+def draw_power_up(power_up_rect, power_up_type):
+    if power_up_type == "invincibility":
+        # Draw lightning bolt for invincibility
+        points = [
+            (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y),  # Top
+            (power_up_rect.x + power_up_rect.width * 0.75, power_up_rect.y + power_up_rect.height // 3),
+            (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height // 3),
+            (power_up_rect.x + power_up_rect.width * 0.85, power_up_rect.y + power_up_rect.height),
+            (power_up_rect.x + power_up_rect.width // 2.5, power_up_rect.y + power_up_rect.height * 0.7),
+            (power_up_rect.x + power_up_rect.width * 0.6, power_up_rect.y + power_up_rect.height * 0.7),
+        ]
+        pygame.draw.polygon(display, yellow, points)
+    elif power_up_type == "speed_boost":
+        # Draw fast-forward symbol for speed boost
+        pygame.draw.polygon(display, green, [
+            (power_up_rect.x + power_up_rect.width * 0.2, power_up_rect.y + power_up_rect.height * 0.2),
+            (power_up_rect.x + power_up_rect.width * 0.8, power_up_rect.y + power_up_rect.height * 0.5),
+            (power_up_rect.x + power_up_rect.width * 0.2, power_up_rect.y + power_up_rect.height * 0.8),
+        ])
+        pygame.draw.polygon(display, green, [
+            (power_up_rect.x + power_up_rect.width * 0.5, power_up_rect.y + power_up_rect.height * 0.2),
+            (power_up_rect.x + power_up_rect.width * 0.8, power_up_rect.y + power_up_rect.height * 0.5),
+            (power_up_rect.x + power_up_rect.width * 0.5, power_up_rect.y + power_up_rect.height * 0.8),
+        ])
 
 # Function to generate a random power-up
 def generate_power_up():
     if random.random() < 1/3:  # 1/3 chance of power-up generation
         power_up_x = round(random.randrange(0, width - snake_block) / 10.0) * 10.0
         power_up_y = round(random.randrange(0, height - snake_block) / 10.0) * 10.0
-        return pygame.Rect(power_up_x, power_up_y, snake_block * 4, snake_block * 4)
-    return None
+        power_up_type = random.choice(["invincibility", "speed_boost"])  # Randomly choose power-up type
+        return pygame.Rect(power_up_x, power_up_y, snake_block * 4, snake_block * 4), power_up_type
+    return None, None
 
 # Function to draw the snake with ghostly effect when power-up is active
 def draw_ghostly_snake(snake_block, snake_list):
-    for x in snake_list:
-        if power_up_active:  # If power-up is active, make snake look ghostly
-            for i, segment in enumerate(reversed(snake_list)):
-                x, y = segment
-                center_x, center_y = x + snake_block // 2, y + snake_block // 2
-                if i == 0:  # Head
-                    # Draw head with eyes
-                    pygame.draw.ellipse(display, white, [x, y, snake_block + 2, snake_block])
-                    eye_radius = snake_block // 5
-                    # Left Eye
-                    pygame.draw.circle(display, blue, (center_x - 3, center_y - 3), eye_radius)
-                    # Right Eye
-                    pygame.draw.circle(display, blue, (center_x + 3, center_y - 3), eye_radius)
-                else:  # Body
-                    pygame.draw.ellipse(display, white, [x + 1, y + 1, snake_block - 2, snake_block - 2])
-                if i == len(snake_list) - 1:  # Tail Tapering
-                    pygame.draw.ellipse(display, white, [x + 3, y + 3, snake_block - 4, snake_block - 4])
-        else:
-            draw_snake(snake_block, snake_list)
+    for i, segment in enumerate(reversed(snake_list)):
+        x, y = segment
+        center_x, center_y = x + snake_block // 2, y + snake_block // 2
+        if i == 0:  # Head
+            # Draw head with eyes
+            pygame.draw.ellipse(display, white, [x, y, snake_block + 2, snake_block])
+            eye_radius = snake_block // 5
+            # Left Eye
+            pygame.draw.circle(display, blue, (center_x - 3, center_y - 3), eye_radius)
+            # Right Eye
+            pygame.draw.circle(display, blue, (center_x + 3, center_y - 3), eye_radius)
+        else:  # Body
+            pygame.draw.ellipse(display, white, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+        if i == len(snake_list) - 1:  # Tail Tapering
+            pygame.draw.ellipse(display, white, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 # Achievement System
 class AchievementSystem:
@@ -425,10 +437,13 @@ class AchievementSystem:
 
 def game_loop(selected_map, high_score):
     achievement_system = AchievementSystem()
-    global power_up_active, power_up_timer, power_up_rect, power_up_creation_time
+    global power_up_active, power_up_type, power_up_timer, power_up_rect, power_up_creation_time, snake_speed 
     game_over = False
     game_close = False
     score = 0
+
+    # Store the original snake speed
+    original_snake_speed = snake_speed
 
     map_details = maps[selected_map]
     background_color = map_details["background"]
@@ -500,7 +515,7 @@ def game_loop(selected_map, high_score):
 
         # Draw the power-up if it exists
         if power_up_rect:
-            draw_power_up(power_up_rect)
+            draw_power_up(power_up_rect, power_up_type)
 
         snake_head = [x1, y1]
         snake_list.append(snake_head)
@@ -514,12 +529,16 @@ def game_loop(selected_map, high_score):
 
         for obs in obstacles:
             if obs.collidepoint(x1, y1):
-                if not power_up_active:  # Only collide with obstacles if power-up is not active
+                if not power_up_active or power_up_type != "invincibility":  # Only collide if not invincible
                     pygame.mixer.Sound.play(collision_sound)
                     game_close = True
 
         # Draw the snake with the ghostly effect when power-up is active
-        draw_ghostly_snake(snake_block, snake_list)
+        if power_up_active and power_up_type == "invincibility":
+            draw_ghostly_snake(snake_block, snake_list)
+        else:
+            draw_snake(snake_block, snake_list)
+
         display_score(snake_length - 1)
         display_high_score(high_score)
         achievement_system.update_achievement_display()
@@ -535,7 +554,7 @@ def game_loop(selected_map, high_score):
             snake_length += 1
 
             # Generate power-up on food consumption
-            power_up_rect = generate_power_up()
+            power_up_rect, power_up_type = generate_power_up()
             if power_up_rect:  # If power-up generated, store its creation time
                 power_up_creation_time = time.time()
 
@@ -543,11 +562,18 @@ def game_loop(selected_map, high_score):
         if power_up_rect and pygame.Rect(x1, y1, snake_block, snake_block).colliderect(power_up_rect):
             power_up_active = True
             power_up_timer = time.time()  # Start the power-up timer
+            if power_up_type == "speed_boost":
+                
+                snake_speed = int(snake_speed * 1.75)  # Increase speed by 75%
             power_up_rect = None  # Remove the power-up after collection
 
         # If the power-up timer expires, deactivate the power-up
         if power_up_active and time.time() - power_up_timer > 5:  # Power-up lasts for 5 seconds
             power_up_active = False
+            if power_up_type == "speed_boost":
+                
+                snake_speed = original_snake_speed  # Reset to original speed
+            power_up_type = None  # Reset power-up type
 
         # If the power-up has not been collected and 5 seconds have passed, remove it
         if power_up_rect and time.time() - power_up_creation_time > 5:
