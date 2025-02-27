@@ -215,10 +215,11 @@ def upcoming_updates_screen():
 # Function to show "How to Play" instructions
 def how_to_play_screen():
     display.fill(blue)
-    display_message("How to Play", white, y_offset=-75, x_offset = 225)
-    display_message("Use WASD or Arrow Keys to move the snake.", white, y_offset=0, x_offset=25)
-    display_message("Touch the big yellow object to turn into a ghost!", white, y_offset=50,x_offset=25)
-    display_message("While a ghost, you can pass through obstacles.", white, y_offset=100,x_offset=25)
+    display_message("How to Play", white, y_offset=-100, x_offset = 225)
+    display_message("Use WASD or Arrow Keys to move the snake.", white, y_offset=-50, x_offset=25)
+    display_message("Touch the big yellow object to turn into a ghost!", white, y_offset=0,x_offset=25)
+    display_message("While a ghost, you can pass through obstacles.", white, y_offset=50,x_offset=25)
+    display_message("When using a speed boost, you can move faster.", white, y_offset=100, x_offset= 25)
     display_message("Press ESC to return to the main menu.", white, y_offset=200,x_offset=25) 
     pygame.display.update()
 
@@ -281,25 +282,25 @@ def main_menu():
     button_spacing = 60 
 
     menu_options = [
-        ("Blue Map", "blue"),
-        ("Green Map", "green"),
-        ("Dark Map", "dark"),
-        ("Options", "options"),
-        ("How to Play", "how_to_play"),
-        ("Upcoming Updates", "updates"),
-        ("Cosmetic Shop", "shop"),
-        ("Exit", "exit")
+        ("Blue Map", "blue", -15, -35),
+        ("Green Map", "green", -15, -30),
+        ("Dark Map", "dark", -15, -25),
+        ("Options", "options",-15, -20),
+        ("How to Play", "how_to_play", -15, -15),
+        ("Upcoming Updates", "updates", -15, -10),
+        ("Cosmetic Shop", "shop", -15, -5),
+        ("Exit", "exit", -15, 0)
     ]
 
     while menu_active:
         display.fill(black)  
-        display_message("Welcome to Snake Game!", yellow, y_offset=-120, x_offset=width // 6, underline=True)
+        display_message("Welcome to Snake Game!", yellow, y_offset=-120, x_offset=width // 4, underline=True)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         buttons = []
 
-        for i, (label, action) in enumerate(menu_options):
-            btn_rect = pygame.Rect(button_x, button_y_start + i * button_spacing, button_width, button_height)
+        for i, (label, action, x_offset, y_offset) in enumerate(menu_options):
+            btn_rect = pygame.Rect(button_x + x_offset, button_y_start + i * button_spacing + y_offset, button_width, button_height)
             buttons.append((btn_rect, action))
 
             color = button_hover_color if btn_rect.collidepoint(mouse_x, mouse_y) else button_color
