@@ -157,21 +157,26 @@ def draw_slider(label, x, y, value):
     text = font_style.render(label, True, white)
     display.blit(text, (x, y - 30))
 
+def draw_home_icon():
+    home_icon = pygame.Rect(10, 10, 40, 40)
+    pygame.draw.rect(display, white, home_icon, border_radius=10)
+    text = font_style.render("🏠", True, black)
+    display.blit(text, (20, 15))
+    return home_icon
+
 def options_menu():
     global master_volume, music_volume, sfx_volume
-
     options_active = True
     while options_active:
-        display.fill(blue)
+        display.fill(black)
+        display_message("Options", yellow, y_offset=-120, x_offset=width // 3, underline=True)
+        home_icon = draw_home_icon()
         draw_slider("Master Volume", 200, 100, master_volume)
         draw_slider("Music Volume", 200, 150, music_volume)
         draw_slider("SFX Volume", 200, 200, sfx_volume)
-
-        instructions = font_style.render("Press ESC to return to the main menu", True, yellow)
-        display.blit(instructions, (50, 300))
-
+        display_message("Press ESC to return to the main menu", white, y_offset=200, x_offset=100)
         pygame.display.update()
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -180,28 +185,18 @@ def options_menu():
                 if event.key == pygame.K_ESCAPE:
                     options_active = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if 200 <= mouse_x <= 400:
-                    if 100 <= mouse_y <= 110:
-                        master_volume = (mouse_x - 200) / 200
-                        pygame.mixer.music.set_volume(master_volume * music_volume)
-                        food_sound.set_volume(master_volume * sfx_volume)
-                        collision_sound.set_volume(master_volume * sfx_volume)
-                    elif 150 <= mouse_y <= 160:
-                        music_volume = (mouse_x - 200) / 200
-                        pygame.mixer.music.set_volume(master_volume * music_volume)
-                    elif 200 <= mouse_y <= 210:
-                        sfx_volume = (mouse_x - 200) / 200
-                        food_sound.set_volume(master_volume * sfx_volume)
-                        collision_sound.set_volume(master_volume * sfx_volume)
+                if home_icon.collidepoint(pygame.mouse.get_pos()):
+                    options_active = False
+                        
 def upcoming_updates_screen():
-    display.fill(blue)
-    display_message("Upcoming Updates", white, y_offset = -90, x_offset = 185, underline = True)
-    display_message("- New maps coming soon!", white, y_offset = -40, x_offset = 25)
-    display_message("- New power ups coming soon!", white, y_offset = 0, x_offset = 25)
-    display_message("- New game modes coming soon!", white, y_offset = 40, x_offset = 25)
-    display_message("Press ESC to return to the main menu.", white, y_offset=200,x_offset=25) 
+    display.fill(black)
+    display_message("Upcoming Updates", yellow, y_offset=-120, x_offset=width // 3, underline=True)
+    home_icon = draw_home_icon()
+    display_message("- New maps coming soon!", white, y_offset=-50, x_offset=50)
+    display_message("- New power-ups coming soon!", white, y_offset=0, x_offset=50)
+    display_message("Press ESC to return to the main menu.", white, y_offset=200, x_offset=50)
     pygame.display.update()
+    
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -210,20 +205,20 @@ def upcoming_updates_screen():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    main_menu()
                     waiting = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if home_icon.collidepoint(pygame.mouse.get_pos()):
+                    waiting = False
+                    
 # Function to show "How to Play" instructions
 def how_to_play_screen():
-    display.fill(blue)
-    display_message("How to Play", white, y_offset=-100, x_offset = 225)
-    display_message("Use WASD or Arrow Keys to move the snake.", white, y_offset=-50, x_offset=25)
-    display_message("Touch the big yellow object to turn into a ghost!", white, y_offset=0,x_offset=25)
-    display_message("While a ghost, you can pass through obstacles.", white, y_offset=50,x_offset=25)
-    display_message("When using a speed boost, you can move faster.", white, y_offset=100, x_offset= 25)
-    display_message("Press ESC to return to the main menu.", white, y_offset=200,x_offset=25) 
+    display.fill(black)
+    display_message("How to Play", yellow, y_offset=-120, x_offset=width // 3, underline=True)
+    home_icon = draw_home_icon()
+    display_message("Use WASD or Arrow Keys to move the snake.", white, y_offset=-50, x_offset=50)
+    display_message("Press ESC to return to the main menu.", white, y_offset=200, x_offset=50)
     pygame.display.update()
-
-    # Wait for the player to press ESC to return to the main menu
+    
     waiting = True
     while waiting:
         for event in pygame.event.get():
@@ -232,7 +227,9 @@ def how_to_play_screen():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    main_menu()
+                    waiting = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if home_icon.collidepoint(pygame.mouse.get_pos()):
                     waiting = False
 
 def cosmetic_shop_screen():
