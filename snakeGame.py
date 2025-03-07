@@ -37,6 +37,11 @@ pygame.mixer.init()
 background_music = "background_music.mp3"  # Background music
 food_sound = pygame.mixer.Sound("food.mp3")  # SFX for when the snake eats food
 collision_sound = pygame.mixer.Sound("collision.mp3")  # SFX for obstacle-snake collision
+invincibility_sound = pygame.mixer.Sound("invincibility.mp3")  # SFX for invincibility power-up
+speed_boost_sound = pygame.mixer.Sound("speed_boost.mp3")  # SFX for speed boost power-up
+power_down_sound = pygame.mixer.Sound("power_down.mp3")  # Power-up expiration sound
+achievement_sound = pygame.mixer.Sound("achievement.mp3")  # Achievement unlocked sound
+menu_click_sound = pygame.mixer.Sound("menu_click.mp3")  # Menu click sound
 pygame.mixer.music.load(background_music)
 pygame.mixer.music.set_volume(0.5)  # Decrease volume to 50%
 pygame.mixer.music.play(-1)  # Loop the background music
@@ -415,6 +420,7 @@ class AchievementSystem:
         if achievement_key in self.achievements:
             self.achievements[achievement_key]["earned"] = True
             self.achievement_queue.append(self.achievements[achievement_key]["message"])
+            pygame.mixer.Sound.play(achievement_sound)
             print(f"Achievement Unlocked: {self.achievements[achievement_key]['message']}")  # Debug message
 
     def update_achievement_display(self):
@@ -507,6 +513,7 @@ def game_loop(selected_map, high_score):
                         game_loop(selected_map, high_score)  # Restart the game (recursive call)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if btn_rect.collidepoint(mouse_x, mouse_y):
+                        pygame.mixer.Sound.play(menu_click_sound)
                         main_menu()  # Go back to the main menu when clicked
 
             pygame.display.update()
@@ -594,12 +601,15 @@ def game_loop(selected_map, high_score):
             power_up_active = True
             power_up_timer = time.time()  # Start the power-up timer
             if power_up_type == "speed_boost":
-                
+                pygame.mixer.Sound.play(speed_boost_sound)
                 snake_speed = int(snake_speed * 1.75)  # Increase speed by 75%
+            elif power_up_type == "invincibility":
+                pygame.mixer.Sound.play(invincibility_sound)
             power_up_rect = None  # Remove the power-up after collection
 
         # If the power-up timer expires, deactivate the power-up
         if power_up_active and time.time() - power_up_timer > 5:  # Power-up lasts for 5 seconds
+            pygame.mixer.Sound.play(power_down_sound)
             power_up_active = False
             if power_up_type == "speed_boost":
                 
