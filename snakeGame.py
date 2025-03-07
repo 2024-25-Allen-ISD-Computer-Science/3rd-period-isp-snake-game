@@ -470,16 +470,49 @@ def game_loop(selected_map, high_score):
                 high_score = snake_length - 1
             display_high_score(high_score)
             pygame.display.update()
+            button_color = (50, 150, 255)
+            button_hover_color = (30, 100, 200)
+            button_width = 250
+            button_height = 50
+            button_x = (width - button_width) // 2
+            button_y_end = 120
+            text_color = white
+            
+            # Position of the "Back to Main Menu" button
+            button_y = button_y_end + (button_height + 10)  
+            
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            btn_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+
+            # Change button color when hovering
+            color = button_hover_color if btn_rect.collidepoint(mouse_x, mouse_y) else button_color
+            pygame.draw.rect(display, color, btn_rect, border_radius=10)
+            pygame.draw.rect(display, white, btn_rect, 2, border_radius=10)
+
+            # Display button text
+            text_surface = font_style.render("Back to Main Menu", True, text_color)
+            text_x = btn_rect.centerx - text_surface.get_width() // 2
+            text_y = btn_rect.centery - text_surface.get_height() // 2
+            display.blit(text_surface, (text_x, text_y))
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    quit()  # Quit the game entirely if the window is closed
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:
-                        game_loop(selected_map, high_score)
+                    if event.key == pygame.K_q:  # Quit the game entirely
+                        pygame.quit()
+                        quit()
+                    elif event.key == pygame.K_c:  # Restart the game
+                        game_loop(selected_map, high_score)  # Restart the game (recursive call)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if btn_rect.collidepoint(mouse_x, mouse_y):
+                        main_menu()  # Go back to the main menu when clicked
+
+            pygame.display.update()
+
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
