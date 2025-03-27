@@ -343,16 +343,10 @@ def main_menu():
 # Function to draw the power-up
 def draw_power_up(power_up_rect, power_up_type):
     if power_up_type == "invincibility":
-        # Draw lightning bolt for invincibility
-        points = [
-            (power_up_rect.x + power_up_rect.width // 2, power_up_rect.y),  # Top
-            (power_up_rect.x + power_up_rect.width * 0.75, power_up_rect.y + power_up_rect.height // 3),
-            (power_up_rect.x + power_up_rect.width // 3, power_up_rect.y + power_up_rect.height // 3),
-            (power_up_rect.x + power_up_rect.width * 0.85, power_up_rect.y + power_up_rect.height),
-            (power_up_rect.x + power_up_rect.width // 2.5, power_up_rect.y + power_up_rect.height * 0.7),
-            (power_up_rect.x + power_up_rect.width * 0.6, power_up_rect.y + power_up_rect.height * 0.7),
-        ]
-        pygame.draw.polygon(display, yellow, points)
+        # Draw heart for invincibility
+        pygame.draw.circle(display, (255, 0, 0), (power_up_rect.x - 15, power_up_rect.y), 15)
+        pygame.draw.circle(display, (255, 0, 0), (power_up_rect.x + 15, power_up_rect.y), 15)
+        pygame.draw.polygon(display, (255, 0, 0), [(power_up_rect.x - 30, power_up_rect.y), (power_up_rect.x + 30, power_up_rect.y), (power_up_rect.x, power_up_rect.y + 30)])
     elif power_up_type == "speed_boost":
         # Draw fast-forward symbol for speed boost
         pygame.draw.polygon(display, green, [
@@ -375,23 +369,23 @@ def generate_power_up():
         return pygame.Rect(power_up_x, power_up_y, snake_block * 4, snake_block * 4), power_up_type
     return None, None
 
-# Function to draw the snake with ghostly effect when power-up is active
-def draw_ghostly_snake(snake_block, snake_list):
+# Function to draw the snake with invincibility when power-up is active
+def draw_invincible_snake(snake_block, snake_list):
     for i, segment in enumerate(reversed(snake_list)):
         x, y = segment
         center_x, center_y = x + snake_block // 2, y + snake_block // 2
         if i == 0:  # Head
             # Draw head with eyes
-            pygame.draw.ellipse(display, white, [x, y, snake_block + 2, snake_block])
+            pygame.draw.ellipse(display, red, [x, y, snake_block + 2, snake_block])
             eye_radius = snake_block // 5
             # Left Eye
-            pygame.draw.circle(display, blue, (center_x - 3, center_y - 3), eye_radius)
+            pygame.draw.circle(display, black, (center_x - 3, center_y - 3), eye_radius)
             # Right Eye
-            pygame.draw.circle(display, blue, (center_x + 3, center_y - 3), eye_radius)
+            pygame.draw.circle(display, black, (center_x + 3, center_y - 3), eye_radius)
         else:  # Body
-            pygame.draw.ellipse(display, white, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+            pygame.draw.ellipse(display, red, [x + 1, y + 1, snake_block - 2, snake_block - 2])
         if i == len(snake_list) - 1:  # Tail Tapering
-            pygame.draw.ellipse(display, white, [x + 3, y + 3, snake_block - 4, snake_block - 4])
+            pygame.draw.ellipse(display, red, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 # Achievement System
 class AchievementSystem:
