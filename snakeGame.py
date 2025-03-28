@@ -94,9 +94,19 @@ def draw_snake(snake_block, snake_list):
                 pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 def draw_food(x, y):
-    pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])
-    pygame.draw.circle(display, red, (x, y), 10)
-    pygame.draw.ellipse(display, white, [x + 2, y - 4, 4, 2])
+    boundary_x_min = 100  
+    boundary_x_max = width - 100 
+    boundary_y_min = 100  
+    boundary_y_max = height - 100  
+    
+    
+    x = max(min(x, boundary_x_max), boundary_x_min)
+    y = max(min(y, boundary_y_max), boundary_y_min)
+    
+    pygame.draw.ellipse(display, (0, 0, 0), [x - 5, y + 10, 20, 5])  # Shadow
+    pygame.draw.circle(display, red, (x, y), 10)  # Apple
+    pygame.draw.ellipse(display, white, [x + 2, y - 4, 4, 2])  # Highlight on the apple
+
     pygame.draw.polygon(display, green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
     pygame.draw.rect(display, black, [x - 1, y - 12, 2, 5])
 
