@@ -155,16 +155,49 @@ def move_obstacles(obstacles, velocities):
 
 maps = {
     "blue": {"background": blue, "obstacles": []},  # No obstacles
-    "green": {"background": light_green, "obstacles": [
-        pygame.Rect(100, 100, 400, 10),  # Horizontal bar
-        pygame.Rect(200, 200, 10, 100)   # Vertical bar
-    ]},
-    "dark": {"background": dark_gray, "obstacles": [
-        pygame.Rect(50, 50, 500, 10),    # Top horizontal bar
-        pygame.Rect(50, 340, 500, 10),  # Bottom horizontal bar
-        pygame.Rect(150, 150, 300, 10), # Middle horizontal bar
-    ]}
+    "green": {"background": light_green, "obstacles": []},  # Will be populated randomly
+    "dark": {"background": dark_gray, "obstacles": []}  # Will be populated randomly
 }
+
+def generate_random_obstacles(map_type):
+    obstacles = []
+    if map_type == "green":
+        # Generate 2-4 random obstacles for green map
+        num_obstacles = random.randint(2, 4)
+        for _ in range(num_obstacles):
+            # Randomly choose between horizontal or vertical obstacle
+            if random.random() < 0.5:  # 50% chance for horizontal
+                length = random.randint(100, 300)  # Random length between 100-300
+                thickness = random.randint(5, 15)   # Random thickness between 5-15
+                x = random.randint(50, width - length - 50)
+                y = random.randint(50, height - thickness - 50)
+                obstacles.append(pygame.Rect(x, y, length, thickness))
+            else:  # Vertical obstacle
+                length = random.randint(50, 200)    # Random length between 50-200
+                thickness = random.randint(5, 15)   # Random thickness between 5-15
+                x = random.randint(50, width - thickness - 50)
+                y = random.randint(50, height - length - 50)
+                obstacles.append(pygame.Rect(x, y, thickness, length))
+                
+    elif map_type == "dark":
+        # Generate 3-5 random obstacles for dark map
+        num_obstacles = random.randint(3, 5)
+        for _ in range(num_obstacles):
+            # 70% chance for horizontal, 30% for vertical
+            if random.random() < 0.7:  # Horizontal obstacle
+                length = random.randint(200, 400)  # Longer obstacles for dark map
+                thickness = random.randint(5, 10)
+                x = random.randint(20, width - length - 20)
+                y = random.randint(20, height - thickness - 20)
+                obstacles.append(pygame.Rect(x, y, length, thickness))
+            else:  # Vertical obstacle
+                length = random.randint(100, 300)
+                thickness = random.randint(5, 10)
+                x = random.randint(20, width - thickness - 20)
+                y = random.randint(20, height - length - 20)
+                obstacles.append(pygame.Rect(x, y, thickness, length))
+                
+    return obstacles
 
 def draw_slider(label, x, y, value):
     pygame.draw.rect(display, white, [x, y, 200, 10])
@@ -455,8 +488,10 @@ def game_loop(selected_map, high_score):
 
     map_details = maps[selected_map]
     background_color = map_details["background"]
-    obstacles = map_details["obstacles"]
-
+    
+    # Generate random obstacles for the selected map
+    obstacles = generate_random_obstacles(selected_map)
+    
     velocities = [normalize_velocity([random.choice([-1, 1]), random.choice([-1, 1])], obstacle_speed) for _ in obstacles]
 
     x1 = width / 2
@@ -521,7 +556,6 @@ def game_loop(selected_map, high_score):
                         main_menu()  # Go back to the main menu when clicked
 
             pygame.display.update()
-
 
 
 
