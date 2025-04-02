@@ -70,25 +70,25 @@ def draw_snake(snake_block, snake_list):
     for i, segment in enumerate(reversed(snake_list)):
         x, y = segment
         center_x, center_y = x + snake_block // 2, y + snake_block // 2
+        
         if i == 0:  # Head
-            # Draw head with eyes
-            pygame.draw.ellipse(display, forest_green, [x, y, snake_block + 2, snake_block])
+            pygame.draw.polygon(display, forest_green, [(x, y + snake_block), (x + snake_block, y + snake_block), (x + snake_block // 2, y)])
             eye_radius = snake_block // 5
-            # Left Eye
             pygame.draw.circle(display, black, (center_x - 3, center_y - 3), eye_radius)
-            # Right Eye
             pygame.draw.circle(display, black, (center_x + 3, center_y - 3), eye_radius)
-        else:  # Body
+            pygame.draw.line(display, red, (center_x, center_y + 3), (center_x, center_y + 8), 2)  # Tongue
+        else:  # Body with scales
             if power_up_active and power_up_type == "speed_boost":
-                # Flash effect for speed boost
-                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))  # Random bright color
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
                 pygame.draw.ellipse(display, flash_color, [x + 1, y + 1, snake_block - 2, snake_block - 2])
             else:
                 pygame.draw.ellipse(display, forest_green, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+                for j in range(0, snake_block, 4):  # Adding scales
+                    pygame.draw.arc(display, dark_gray, [x + j, y, 4, snake_block], 0, math.pi, 1)
+        
         if i == len(snake_list) - 1:  # Tail Tapering
             if power_up_active and power_up_type == "speed_boost":
-                # Flash effect for speed boost
-                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))  # Random bright color
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
                 pygame.draw.ellipse(display, flash_color, [x + 3, y + 3, snake_block - 4, snake_block - 4])
             else:
                 pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
@@ -417,18 +417,28 @@ def draw_invincible_snake(snake_block, snake_list):
     for i, segment in enumerate(reversed(snake_list)):
         x, y = segment
         center_x, center_y = x + snake_block // 2, y + snake_block // 2
+        
         if i == 0:  # Head
-            # Draw head with eyes
-            pygame.draw.ellipse(display, red, [x, y, snake_block + 2, snake_block])
+            pygame.draw.polygon(display, red, [(x, y + snake_block), (x + snake_block, y + snake_block), (x + snake_block // 2, y)])
             eye_radius = snake_block // 5
-            # Left Eye
             pygame.draw.circle(display, black, (center_x - 3, center_y - 3), eye_radius)
-            # Right Eye
             pygame.draw.circle(display, black, (center_x + 3, center_y - 3), eye_radius)
-        else:  # Body
-            pygame.draw.ellipse(display, red, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+            pygame.draw.line(display, red, (center_x, center_y + 3), (center_x, center_y + 8), 2)  # Tongue
+        else:  # Body with scales
+            if power_up_active and power_up_type == "speed_boost":
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
+                pygame.draw.ellipse(display, flash_color, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+            else:
+                pygame.draw.ellipse(display, red, [x + 1, y + 1, snake_block - 2, snake_block - 2])
+                for j in range(0, snake_block, 4):  # Adding scales
+                    pygame.draw.arc(display, dark_gray, [x + j, y, 4, snake_block], 0, math.pi, 1)
+        
         if i == len(snake_list) - 1:  # Tail Tapering
-            pygame.draw.ellipse(display, red, [x + 3, y + 3, snake_block - 4, snake_block - 4])
+            if power_up_active and power_up_type == "speed_boost":
+                flash_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
+                pygame.draw.ellipse(display, flash_color, [x + 3, y + 3, snake_block - 4, snake_block - 4])
+            else:
+                pygame.draw.ellipse(display, forest_green, [x + 3, y + 3, snake_block - 4, snake_block - 4])
 
 # Achievement System
 class AchievementSystem:
@@ -609,9 +619,9 @@ def game_loop(selected_map, high_score):
                     pygame.mixer.Sound.play(collision_sound)
                     game_close = True
 
-        # Draw the snake with the ghostly effect when power-up is active
+        # Draw the snake with the invincibile effect when power-up is active
         if power_up_active and power_up_type == "invincibility":
-            draw_ghostly_snake(snake_block, snake_list)
+            draw_invincible_snake(snake_block, snake_list)
         else:
             draw_snake(snake_block, snake_list)
 
