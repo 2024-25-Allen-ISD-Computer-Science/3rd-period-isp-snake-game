@@ -428,6 +428,16 @@ def main_menu():
 
 # Function to draw the power-up
 def draw_power_up(power_up_rect, power_up_type):
+    # Boundary for power-up spawn (similar to the apple boundary)
+    boundary_x_min = 100
+    boundary_x_max = width - 100
+    boundary_y_min = 100
+    boundary_y_max = height - 100
+
+    # Adjust the power-up's position if it's outside the defined boundaries
+    power_up_rect.x = max(min(power_up_rect.x, boundary_x_max - power_up_rect.width), boundary_x_min)
+    power_up_rect.y = max(min(power_up_rect.y, boundary_y_max - power_up_rect.height), boundary_y_min)
+
     if power_up_type == "invincibility":
         # Draw heart for invincibility
         pygame.draw.circle(display, (255, 0, 0), (power_up_rect.x - 15, power_up_rect.y), 15)
