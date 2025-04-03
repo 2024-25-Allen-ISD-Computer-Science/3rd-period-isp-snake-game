@@ -23,6 +23,7 @@ light_green = (144, 238, 144)
 forest_green = (34, 139, 34)
 crimson = (220, 20, 60)
 saddle_brown = (139, 69, 19)
+purple = (128, 0, 128)
 
 # Game variables
 snake_block = 10
@@ -57,6 +58,48 @@ power_up_type = None  # Tracks the type of power-up (None, "invincibility", or "
 power_up_timer = 0  # Timer for the active power-up
 power_up_rect = None  # Rectangle for the power-up on the screen
 power_up_creation_time = 0  # Timestamp when the power-up is created
+
+# Purple balls variables
+purple_balls = []
+purple_ball_radius = 15
+purple_ball_speed = 2
+
+def initialize_purple_balls():
+    global purple_balls
+    purple_balls = []
+    spacing = height // 5  # Equal spacing between balls
+    for i in range(1, 5):  # Create 4 balls
+        purple_balls.append({
+            'x': 0,
+            'y': spacing * i,
+            'direction': 1,  # 1 for right, -1 for left
+            'radius': purple_ball_radius
+        })
+
+def update_purple_balls():
+    for ball in purple_balls:
+        ball['x'] += purple_ball_speed * ball['direction']
+        # Reverse direction if hitting boundaries
+        if ball['x'] <= ball['radius']:
+            ball['x'] = ball['radius']  # Prevent getting stuck at edge
+            ball['direction'] = 1  # Force move right
+        elif ball['x'] >= width - ball['radius']:
+            ball['x'] = width - ball['radius']  # Prevent getting stuck at edge
+            ball['direction'] = -1  # Force move left
+
+def draw_purple_balls():
+    for ball in purple_balls:
+        pygame.draw.circle(display, purple, (int(ball['x']), int(ball['y'])), ball['radius'])
+        # Add a highlight to make them look more ball-like
+        pygame.draw.circle(display, (178, 102, 255), (int(ball['x'] - ball['radius']/3), int(ball['y'] - ball['radius']/3)), ball['radius']//4)
+
+def check_purple_ball_collision(x, y):
+    for ball in purple_balls:
+        distance = math.sqrt((x - ball['x'])**2 + (y - ball['y'])**2)
+        if distance <= ball['radius'] + snake_block/2:
+            return True
+    return False
+
 
 def display_score(score):
     value = score_font.render("Score: " + str(score), True, yellow)
@@ -493,6 +536,10 @@ def game_loop(selected_map, high_score):
     game_close = False
     score = 0
 
+     # Initialize purple balls if dark map
+    if selected_map == "dark":
+        initialize_purple_balls()
+
     # Store the original snake speed
     original_snake_speed = snake_speed
 
@@ -596,6 +643,15 @@ def game_loop(selected_map, high_score):
 
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
+
+        # Update and draw purple balls if dark map
+        if selected_map == "dark":
+            update_purple_balls()
+            draw_purple_balls()
+            # Check collision with purple balls
+            if check_purple_ball_collision(x1, y1) and (not power_up_active or power_up_type != "invincibility"):
+                pygame.mixer.Sound.play(collision_sound)
+                game_close = True
 
         draw_food(foodx, foody)
 
