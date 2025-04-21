@@ -155,6 +155,15 @@ def draw_food(x, y):
     pygame.draw.polygon(display, green, [(x + 5, y - 7), (x + 3, y - 12), (x + 10, y - 10)])
     pygame.draw.rect(display, black, [x - 1, y - 12, 2, 5])
 
+def draw_checkered_background(color1, color2):
+    block_size = 20
+    for y in range(0, height, block_size):
+        for x in range(0, width, block_size):
+            if (x // block_size + y // block_size) % 2 == 0:
+                pygame.draw.rect(display, color1, pygame.Rect(x, y, block_size, block_size))
+            else:
+                pygame.draw.rect(display, color2, pygame.Rect(x, y, block_size, block_size))
+
 def display_message(msg, color, y_offset=0, x_offset=width/6, underline=False):
     mesg = font_style.render(msg, True, color)
     display.blit(mesg, [x_offset, height / 3 + y_offset])
@@ -559,6 +568,12 @@ def game_loop(selected_map, high_score):
 
     map_details = maps[selected_map]
     background_color = map_details["background"]
+
+    color_pairs = {
+        "blue": ((50, 153, 213), (100, 180, 230)),
+        "green": ((144, 238, 144), (120, 200, 120)),
+        "dark": ((50, 50, 50), (30, 30, 30))
+    }
     
     # Generate random obstacles for the selected map
     obstacles = generate_random_obstacles(selected_map)
@@ -579,7 +594,7 @@ def game_loop(selected_map, high_score):
 
     while not game_over:
         while game_close:
-            display.fill(background_color)
+            draw_checkered_background(*color_pairs[selected_map])
             display_message("You Lost! Press Q-Quit or C-Play Again", red)
             display_score(snake_length - 1)
             if snake_length - 1 > high_score:
@@ -653,7 +668,7 @@ def game_loop(selected_map, high_score):
 
         x1 += x1_change
         y1 += y1_change
-        display.fill(background_color)
+        draw_checkered_background(*color_pairs[selected_map])
 
         move_obstacles(obstacles, velocities)
         draw_obstacles(obstacles)
